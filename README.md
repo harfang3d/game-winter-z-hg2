@@ -1,15 +1,13 @@
 # WinterZ
 
+**WinterZ**, a game by **Jerome Sentex** (Wizital) for [Android](https://play.google.com/store/apps/details?id=net.textoo.winterz) and iOS, reprogrammed in Python/Lua using the HARFANG 3D framework
+
 *The World was destroyed, nuclear winter came and dead people are back on earth to eat some fresh brains.*
 
 *You and a bunch of other survivors have to escape and go ahead to find some better places.
 Take control of your spaceship and try to go as far as you can.*
 
 *Warning! this game is very addictive and is definitely not relaxing, you've been warned.*
-
-**WinterZ**, a game by **Jerome Sentex** (Wizital) for [Android](https://play.google.com/store/apps/details?id=net.textoo.winterz) and iOS, reprogrammed in Python/Lua using the HARFANG 3D framework
-
-
 
 ## How to run WinterZ
 
