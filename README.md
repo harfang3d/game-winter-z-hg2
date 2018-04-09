@@ -1,5 +1,4 @@
-| ![WinterZ Logo](https://github.com/harfang3d/game-winter-z/raw/master/screenshots/wz_logo_small.png) | #WinterZ |
-|:---:|:---:|
+#WinterZ
 
 *The World was destroyed, nuclear winter came and dead people are back on earth to eat some fresh brains.*
 
@@ -30,3 +29,5 @@ Take control of your spaceship and try to go as far as you can.*
 * Python/Lua reprogramming : Eric Kernin
 
 ## Screenshots
+
+![WinterZ Logo](https://github.com/harfang3d/game-winter-z/raw/master/screenshots/wz_logo_small.png)
