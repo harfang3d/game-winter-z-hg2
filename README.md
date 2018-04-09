@@ -1,5 +1,6 @@
 | ![WinterZ Logo](https://github.com/harfang3d/game-winter-z/raw/master/screenshots/wz_logo_small.png) | # WinterZ |
 |:---:|:---:|
+
 *The World was destroyed, nuclear winter came and dead people are back on earth to eat some fresh brains.*
 
 *You and a bunch of other survivors have to escape and go ahead to find some better places.
