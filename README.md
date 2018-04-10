@@ -30,6 +30,6 @@ Take control of your spaceship and try to go as far as you can.*
 
 ## Screenshots
 [![Screenshot #0](https://github.com/harfang3d/game-winter-z/raw/master/screenshots/thumbnails/screenshot_0.png)](https://github.com/harfang3d/game-winter-z/raw/master/screenshots/screenshot_0.png)
-[![Screenshot #1](https://github.com/harfang3d/game-winter-z/raw/master/screenshots/thumbnails/screenshot_0.png)](https://github.com/harfang3d/game-winter-z/raw/master/screenshots/screenshot_1.png)
-[![Screenshot #2](https://github.com/harfang3d/game-winter-z/raw/master/screenshots/thumbnails/screenshot_0.png)](https://github.com/harfang3d/game-winter-z/raw/master/screenshots/screenshot_2.png)
-[![Screenshot #3](https://github.com/harfang3d/game-winter-z/raw/master/screenshots/thumbnails/screenshot_0.png)](https://github.com/harfang3d/game-winter-z/raw/master/screenshots/screenshot_3.png)
+[![Screenshot #1](https://github.com/harfang3d/game-winter-z/raw/master/screenshots/thumbnails/screenshot_1.png)](https://github.com/harfang3d/game-winter-z/raw/master/screenshots/screenshot_1.png)
+[![Screenshot #2](https://github.com/harfang3d/game-winter-z/raw/master/screenshots/thumbnails/screenshot_2.png)](https://github.com/harfang3d/game-winter-z/raw/master/screenshots/screenshot_2.png)
+[![Screenshot #3](https://github.com/harfang3d/game-winter-z/raw/master/screenshots/thumbnails/screenshot_3.png)](https://github.com/harfang3d/game-winter-z/raw/master/screenshots/screenshot_3.png)
