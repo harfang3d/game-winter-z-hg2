@@ -9,6 +9,8 @@ Take control of your spaceship and try to go as far as you can.*
 
 *Warning! this game is very addictive and is definitely not relaxing, you've been warned.*
 
+![WinterZ Logo](https://github.com/harfang3d/game-winter-z/raw/master/screenshots/wz_logo_small.png)
+
 ## How to run WinterZ
 
 ### Python
@@ -27,5 +29,7 @@ Take control of your spaceship and try to go as far as you can.*
 * Python/Lua reprogramming : Eric Kernin
 
 ## Screenshots
-
-![WinterZ Logo](https://github.com/harfang3d/game-winter-z/raw/master/screenshots/wz_logo_small.png)
+![Screenshot #0](https://github.com/harfang3d/game-winter-z/raw/master/screenshots/screenshot_0.png)
+![Screenshot #1](https://github.com/harfang3d/game-winter-z/raw/master/screenshots/screenshot_1.png)
+![Screenshot #2](https://github.com/harfang3d/game-winter-z/raw/master/screenshots/screenshot_2.png)
+![Screenshot #3](https://github.com/harfang3d/game-winter-z/raw/master/screenshots/screenshot_3.png)
