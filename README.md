@@ -15,14 +15,16 @@ Take control of your spaceship and try to go as far as you can.*
 
 ### Python
 1. Get [Python 3](https://www.python.org/downloads/)
-1. Get [HARFANG 3D](https://www.harfang3d.com/doc/1.0.0/man.Installation.html)
+1. Get HARFANG 3D
+** Either download it from the [HARFANG website](https://www.harfang3d.com/downloads) and follow the [install instructions](https://www.harfang3d.com/doc/1.0.0/man.Installation.html)
+** Or, using PIP in the command line, type '*pip install harfang*'
 1. Clone/download this repository
 1. run *main.py*
 
 ### Lua
-1. Get [HARFANG 3D for Lua](https://www.harfang3d.com/doc/1.0.0/man.Installation.html)
+1. Get [HARFANG 3D for Lua](https://www.harfang3d.com/downloads)
 1. Clone/download this repository
-1. In the command line, type 'lua.exe main.lua'
+1. In the command line, type '*lua.exe main.lua*'
 
 ## Credits
 * Original concept, code, art and music : Jerome Sentex
