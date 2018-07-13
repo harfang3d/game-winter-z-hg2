@@ -31,7 +31,7 @@ local Main = {
 	resolution = hg.Vector2(1280, 720),
 	game_scale = 0,
 	antialiasing = 0,
-	screenMode = hg.Fullscreen,
+	screenMode = hg.Windowed,
 
 	-- --- Sprites:
 	sprites = {},
