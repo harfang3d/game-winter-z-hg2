@@ -87,6 +87,8 @@ function Sprite:new( fileName, scale, center)
 		o.position = hg.Vector2(0, 0)
 		o.position_prec = hg.Vector2(0, 0)
 		o.texture = Main.plus:LoadTexture(fileName)
+		while not o.texture:IsReady() do
+		end
 		o.scale = scale
 		if center == nil then
 			o.center = hg.Vector2(o.texture:GetWidth() / 2, o.texture:GetHeight() / 2)
@@ -973,6 +975,8 @@ Main.plus = hg.GetPlus()
 hg.LoadPlugins()
 hg.MountFileDriver(hg.StdFileDriver())
 
+Main.plus:CreateWorkers()
+
 Main.plus:RenderInit(Main.resolution.x, Main.resolution.y, Main.antialiasing, Main.screenMode)
 Main.plus:SetBlend2D(hg.BlendAlpha)
 
@@ -1003,5 +1007,5 @@ while not Main.plus:KeyDown(hg.KeyEscape) do
 	Main.plus:Flip()
 	Main.plus:EndFrame()
 end
-
+plus:DeleteWorkers()
 plus:RenderUninit()
