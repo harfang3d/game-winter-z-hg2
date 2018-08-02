@@ -15,6 +15,8 @@
 
 
 hg = require("harfang")
+--smr = require("source/lua/ScreenModeRequester") 
+smr = require("ScreenModeRequester")
 hg.LoadPlugins()
 
 
@@ -445,10 +447,10 @@ function init_game()
 	Main.flames = ParticlesEngine:new(Main.sprites["explode"])
 
 	-- --- Sfx:
-	Main.sounds = {["collision"] = Main.audio:LoadSound("../assets/pipecollision.wav"),
-				   ["crash"] = Main.audio:LoadSound("../assets/crash.wav"),
-				   ["checkpoint"] = Main.audio:LoadSound("../assets/pipe.wav"),
-				   ["thrust"]  = Main.audio:LoadSound("../assets/thrust.wav")}
+	Main.sounds = {["collision"] = Main.audio:LoadSound("assets/pipecollision.wav"),
+				   ["crash"] = Main.audio:LoadSound("assets/crash.wav"),
+				   ["checkpoint"] = Main.audio:LoadSound("assets/pipe.wav"),
+				   ["thrust"]  = Main.audio:LoadSound("assets/thrust.wav")}
 
 	-- --- Game parameters:
 	Main.scrolls_x = {0,0,0,0,0,0,0,0,0,0}
@@ -458,7 +460,7 @@ function init_game()
 end
 
 function start_ambient_sound()
-	sound = Main.audio:LoadSound("../assets/winterZ.ogg")
+	sound = Main.audio:LoadSound("assets/winterZ.ogg")
 	params = hg.MixerChannelState()
 	params.loop_mode = hg.MixerRepeat
 	params.volume = 1
@@ -467,52 +469,52 @@ end
 
 function init_sprites()
 	Main.sprites = {["ship"] = {}, ["numbers"] = {}, ["min_numbers"] = {}, ["pillars"] = {}, ["parallaxes"] = {}, ["vapors"] = {},
-					["background"] = Sprite:new("../assets/bg4_16_9.png", Main.game_scale, hg.Vector2(0, 0)),
-					["flag"] = Sprite:new("../assets/checkpoint.png", Main.game_scale, hg.Vector2(5, 0)),
-					["explode"] = Sprite:new("../assets/boom2.png", Main.game_scale,nil),
-					["title"] = Sprite:new("../assets/title_x2.png", Main.game_scale,nil),
-					["get_ready"] = Sprite:new("../assets/getready.png", Main.game_scale,nil),
-					["explain"] = Sprite:new("../assets/explain_space.png", Main.game_scale,nil),
-					["gameover"] = Sprite:new("../assets/gameover.png", Main.game_scale,nil),
-					["panel"] = Sprite:new("../assets/panel.png", Main.game_scale,nil),
+					["background"] = Sprite:new("assets/bg4_16_9.png", Main.game_scale, hg.Vector2(0, 0)),
+					["flag"] = Sprite:new("assets/checkpoint.png", Main.game_scale, hg.Vector2(5, 0)),
+					["explode"] = Sprite:new("assets/boom2.png", Main.game_scale,nil),
+					["title"] = Sprite:new("assets/title_x2.png", Main.game_scale,nil),
+					["get_ready"] = Sprite:new("assets/getready.png", Main.game_scale,nil),
+					["explain"] = Sprite:new("assets/explain_space.png", Main.game_scale,nil),
+					["gameover"] = Sprite:new("assets/gameover.png", Main.game_scale,nil),
+					["panel"] = Sprite:new("assets/panel.png", Main.game_scale,nil),
                     ["difficulty_level"] = {
-                        ["easy"]=Sprite:new("../assets/level_easy.png", Main.game_scale,nil),
-                        ["normal"]=Sprite:new("../assets/level_normal.png", Main.game_scale,nil),
-                        ["hard"]=Sprite:new("../assets/level_hard.png", Main.game_scale,nil)
+                        ["easy"]=Sprite:new("assets/level_easy.png", Main.game_scale,nil),
+                        ["normal"]=Sprite:new("assets/level_normal.png", Main.game_scale,nil),
+                        ["hard"]=Sprite:new("assets/level_hard.png", Main.game_scale,nil)
                         }
                     }
 	-- Ship frames:
 	for n=0, 4-1, 1
 	do
-		spr=Sprite:new("../assets/ship_"..n..".png", Main.game_scale, hg.Vector2(28, 20))
+		spr=Sprite:new("assets/ship_"..n..".png", Main.game_scale, hg.Vector2(28, 20))
 		table.insert(Main.sprites["ship"],spr)
 	end
 		
 	-- Numbers font:
 	for n=0, 10-1, 1
 	do
-		spr = Sprite:new("../assets/"..n..".png", Main.game_scale,nil)
+		spr = Sprite:new("assets/"..n..".png", Main.game_scale,nil)
 		table.insert(Main.sprites["numbers"],spr)
-		spr = Sprite:new("../assets/min"..n..".png", Main.game_scale,nil)
+		spr = Sprite:new("assets/min"..n..".png", Main.game_scale,nil)
 		table.insert(Main.sprites["min_numbers"],spr)
 	end
 		
 	-- Pillars:
 	for n=0, 4-1, 1
 	do
-		spr = Sprite:new("../assets/pillar_" ..n.. ".png", Main.game_scale, hg.Vector2(0, 0))
+		spr = Sprite:new("assets/pillar_" ..n.. ".png", Main.game_scale, hg.Vector2(0, 0))
 		table.insert(Main.sprites["pillars"],spr)
 	end
 	
 	-- Parallaxes:
 	for i,n in pairs({"front2bottom", "front2top", "front1bottom", "front1top", "ground", "bg1", "bg2", "bg3", "bg3b"}) do
-		spr = Sprite:new("../assets/"..n..".png", Main.game_scale, hg.Vector2(0, 0))
+		spr = Sprite:new("assets/"..n..".png", Main.game_scale, hg.Vector2(0, 0))
 		table.insert(Main.sprites["parallaxes"],spr)
 	end
 		
 	-- Vapors:
 	for i,n in pairs({"vapor0", "vapor1"}) do
-		spr = Sprite:new("../assets/" .. n .. ".png", Main.game_scale,nil)
+		spr = Sprite:new("assets/" .. n .. ".png", Main.game_scale,nil)
 		table.insert(Main.sprites["vapors"],spr)
 	end
 end
@@ -974,38 +976,47 @@ Main.game_scale = Main.resolution.y / Main.original_resolution.y
 Main.plus = hg.GetPlus()
 hg.LoadPlugins()
 hg.MountFileDriver(hg.StdFileDriver())
+hg.MountFileDriver(hg.StdFileDriver('../assets/'), 'assets/')
+--hg.MountFileDriver(hg.StdFileDriver('source/assets/'), 'assets/')
 
-Main.plus:CreateWorkers()
+--Main.plus:CreateWorkers()
 
-Main.plus:RenderInit(Main.resolution.x, Main.resolution.y, Main.antialiasing, Main.screenMode)
-Main.plus:SetBlend2D(hg.BlendAlpha)
+sel,scr_mode,scr_res = request_screen_mode(16/9)
+if sel=="ok" then
+	Main.resolution.x,Main.resolution.y=scr_res.x,scr_res.y
+	Main.game_scale=Main.resolution.y / Main.original_resolution.y
+	Main.screenMode=scr_mode
 
-Main.audio = hg.CreateMixer()
-Main.audio:Open()
+	Main.plus:RenderInit(Main.resolution.x, Main.resolution.y, Main.antialiasing, Main.screenMode)
+	Main.plus:SetBlend2D(hg.BlendAlpha)
 
-init_game()
-start_ambient_sound()
+	Main.audio = hg.CreateMixer()
+	Main.audio:Open()
 
-Main.score = 0
-Main.score_max = 0
-reset_intro_phase()
-game_phase = intro_phase
+	init_game()
+	start_ambient_sound()
 
--- -----------------------------------------------
---                   Main loop
--- -----------------------------------------------
+	Main.score = 0
+	Main.score_max = 0
+	reset_intro_phase()
+	game_phase = intro_phase
+
+	-- -----------------------------------------------
+	--                   Main loop
+	-- -----------------------------------------------
 
 
-while not Main.plus:KeyDown(hg.KeyEscape) do
-	Main.delta_t = hg.time_to_sec_f(Main.plus:UpdateClock()) * Main.game_speed[Main.difficulty_level]
+	while not Main.plus:KeyDown(hg.KeyEscape) do
+		Main.delta_t = hg.time_to_sec_f(Main.plus:UpdateClock()) * Main.game_speed[Main.difficulty_level]
 
-	-- Rendering:
-	Main.sprites["background"]:draw(nil,nil)
-	game_phase = game_phase()
+		-- Rendering:
+		Main.sprites["background"]:draw(nil,nil)
+		game_phase = game_phase()
 
-	-- End rendering:
-	Main.plus:Flip()
-	Main.plus:EndFrame()
+		-- End rendering:
+		Main.plus:Flip()
+		Main.plus:EndFrame()
+	end
+	--Main.plus:DeleteWorkers()
+	Main.plus:RenderUninit()
 end
-plus:DeleteWorkers()
-plus:RenderUninit()
