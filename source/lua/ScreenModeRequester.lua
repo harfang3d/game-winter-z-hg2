@@ -62,7 +62,8 @@ function gui_ScreenModeRequester()
     elseif cancel then return "quit"
     else return ""
     end
-end 
+end
+
 function request_screen_mode(p_ratio_filter)
 	ratio_filter = p_ratio_filter or 0
 	monitors = hg.GetMonitors()
@@ -71,17 +72,16 @@ function request_screen_mode(p_ratio_filter)
 	for i=0,monitors:size()-1 do
 		table.insert(monitors_names,hg.GetMonitorName(monitors:at(i)))
 		f, m = hg.GetMonitorModes(monitors:at(i))
-		filtered_modes={}
+		table.insert(modes,{})
 		for j=0,m:size()-1 do
 			md=m:at(j)
 			rect = md.rect
 			epsilon = 0.01
 			r = (rect.ex - rect.sx) / (rect.ey - rect.sy)
 			if ratio_filter == 0 or ((ratio_filter>r - epsilon) and (ratio_filter < r + epsilon)) then
-                table.insert(filtered_modes,md)
+                table.insert(modes[i+1],md)
             end
         end
-		table.insert(modes,filtered_modes)
     end
 	plus=hg.GetPlus()
 	plus:RenderInit(res_w, res_h, 1, hg.Windowed)
