@@ -813,7 +813,7 @@ if sel=="ok":
 	# -----------------------------------------------
 
 
-	while not Main.plus.KeyDown(hg.KeyEscape):
+	while not Main.plus.KeyDown(hg.KeyEscape) and not Main.plus.IsAppEnded():
 		Main.delta_t = hg.time_to_sec_f(Main.plus.UpdateClock()) * Main.game_speed[Main.difficulty_level]
 
 		# Rendering:

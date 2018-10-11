@@ -1006,7 +1006,7 @@ if sel=="ok" then
 	-- -----------------------------------------------
 
 
-	while not Main.plus:KeyDown(hg.KeyEscape) do
+	while not Main.plus:KeyDown(hg.KeyEscape) and not Main.plus:IsAppEnded() do
 		Main.delta_t = hg.time_to_sec_f(Main.plus:UpdateClock()) * Main.game_speed[Main.difficulty_level]
 
 		-- Rendering:
