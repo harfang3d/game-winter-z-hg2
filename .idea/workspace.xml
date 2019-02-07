@@ -2,11 +2,15 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="c2ab6d51-dcce-4ea9-b8a3-2beeb037dde8" name="Default" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/game-winter-z.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/game-winter-z.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lua_engine/al_mixer.dll" beforeDir="false" afterPath="$PROJECT_DIR$/lua_engine/al_mixer.dll" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lua_engine/bullet_physic_system.dll" beforeDir="false" afterPath="$PROJECT_DIR$/lua_engine/bullet_physic_system.dll" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lua_engine/egl_renderer.dll" beforeDir="false" afterPath="$PROJECT_DIR$/lua_engine/egl_renderer.dll" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lua_engine/harfang.dll" beforeDir="false" afterPath="$PROJECT_DIR$/lua_engine/harfang.dll" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lua_engine/harfang.exp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/lua_engine/harfang.lib" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/lua_engine/ijg_picture_codec.dll" beforeDir="false" afterPath="$PROJECT_DIR$/lua_engine/ijg_picture_codec.dll" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lua_engine/lua.exe" beforeDir="false" afterPath="$PROJECT_DIR$/lua_engine/lua.exe" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lua_engine/lua53.dll" beforeDir="false" afterPath="$PROJECT_DIR$/lua_engine/lua53.dll" afterDir="false" />
@@ -14,11 +18,12 @@
       <change beforePath="$PROJECT_DIR$/lua_engine/openvr_frame_renderer.dll" beforeDir="false" afterPath="$PROJECT_DIR$/lua_engine/openvr_frame_renderer.dll" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lua_engine/stb_audio_codec.dll" beforeDir="false" afterPath="$PROJECT_DIR$/lua_engine/stb_audio_codec.dll" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lua_engine/stb_picture_codec.dll" beforeDir="false" afterPath="$PROJECT_DIR$/lua_engine/stb_picture_codec.dll" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lua_engine/tests.exe" beforeDir="false" afterPath="$PROJECT_DIR$/lua_engine/tests.exe" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lua_engine/tests.exe" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/lua_engine/wav_audio_codec.dll" beforeDir="false" afterPath="$PROJECT_DIR$/lua_engine/wav_audio_codec.dll" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lua_engine/webm.dll" beforeDir="false" afterPath="$PROJECT_DIR$/lua_engine/webm.dll" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lua_engine/xinput_input_system.dll" beforeDir="false" afterPath="$PROJECT_DIR$/lua_engine/xinput_input_system.dll" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lua_engine/xmp_audio_codec.dll" beforeDir="false" afterPath="$PROJECT_DIR$/lua_engine/xmp_audio_codec.dll" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/source/python/ScreenModeRequester.py" beforeDir="false" afterPath="$PROJECT_DIR$/source/python/ScreenModeRequester.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/source/python/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/source/python/main.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -27,63 +32,13 @@
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
-  <component name="FUSProjectUsageTrigger">
-    <session id="244275376">
-      <usages-collector id="statistics.lifecycle.project">
-        <counts>
-          <entry key="project.closed" value="5" />
-          <entry key="project.open.time.0" value="3" />
-          <entry key="project.open.time.4" value="2" />
-          <entry key="project.opened" value="5" />
-        </counts>
-      </usages-collector>
-      <usages-collector id="statistics.file.extensions.edit">
-        <counts>
-          <entry key="py" value="882" />
-        </counts>
-      </usages-collector>
-      <usages-collector id="statistics.file.types.edit">
-        <counts>
-          <entry key="Python" value="882" />
-        </counts>
-      </usages-collector>
-      <usages-collector id="statistics.file.extensions.open">
-        <counts>
-          <entry key="py" value="1" />
-        </counts>
-      </usages-collector>
-      <usages-collector id="statistics.file.types.open">
-        <counts>
-          <entry key="Python" value="1" />
-        </counts>
-      </usages-collector>
-    </session>
-    <session id="1691931086">
-      <usages-collector id="statistics.lifecycle.project">
-        <counts>
-          <entry key="project.open.time.0" value="1" />
-          <entry key="project.opened" value="1" />
-        </counts>
-      </usages-collector>
-      <usages-collector id="statistics.file.extensions.edit">
-        <counts>
-          <entry key="py" value="7" />
-        </counts>
-      </usages-collector>
-      <usages-collector id="statistics.file.types.edit">
-        <counts>
-          <entry key="Python" value="7" />
-        </counts>
-      </usages-collector>
-    </session>
-  </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/source/python/main.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="481">
-              <caret line="815" column="76" lean-forward="true" selection-start-line="815" selection-start-column="46" selection-end-line="815" selection-end-column="76" />
+            <state relative-caret-position="354">
+              <caret line="789" column="12" selection-start-line="789" selection-start-column="4" selection-end-line="789" selection-end-column="12" />
               <folding>
                 <element signature="e#340#360#0" expanded="true" />
               </folding>
@@ -91,11 +46,11 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/source/python/ScreenModeRequester.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="646">
-              <caret line="34" selection-start-line="34" selection-end-line="34" />
+            <state relative-caret-position="881">
+              <caret line="103" column="17" lean-forward="true" selection-start-line="103" selection-start-column="17" selection-end-line="103" selection-end-column="17" />
             </state>
           </provider>
         </entry>
@@ -121,10 +76,10 @@
     </option>
   </component>
   <component name="ProjectFrameBounds" extendedState="6">
-    <option name="x" value="-9" />
-    <option name="y" value="-9" />
-    <option name="width" value="2898" />
-    <option name="height" value="1588" />
+    <option name="x" value="-8" />
+    <option name="y" value="-8" />
+    <option name="width" value="2576" />
+    <option name="height" value="1416" />
   </component>
   <component name="ProjectView">
     <navigator proportions="" version="1">
@@ -214,15 +169,15 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="-7" y="-7" width="2318" height="1270" extended-state="6" />
+    <frame x="-8" y="-8" width="2576" height="1416" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.19070584" />
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.11032309" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" />
-      <window_info active="true" anchor="bottom" id="Run" order="2" visible="true" weight="0.3289358" />
+      <window_info active="true" anchor="bottom" id="Run" order="2" visible="true" weight="0.11691348" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
@@ -237,24 +192,21 @@
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
     </layout>
   </component>
-  <component name="VcsContentAnnotationSettings">
-    <option name="myLimit" value="2678400000" />
-  </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/source/python/ScreenModeRequester.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="646">
-          <caret line="34" selection-start-line="34" selection-end-line="34" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/source/python/main.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="481">
-          <caret line="815" column="76" lean-forward="true" selection-start-line="815" selection-start-column="46" selection-end-line="815" selection-end-column="76" />
+        <state relative-caret-position="354">
+          <caret line="789" column="12" selection-start-line="789" selection-start-column="4" selection-end-line="789" selection-end-column="12" />
           <folding>
             <element signature="e#340#360#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/source/python/ScreenModeRequester.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="881">
+          <caret line="103" column="17" lean-forward="true" selection-start-line="103" selection-start-column="17" selection-end-line="103" selection-end-column="17" />
         </state>
       </provider>
     </entry>

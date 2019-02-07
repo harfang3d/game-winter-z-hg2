@@ -788,6 +788,7 @@ hg.MountFileDriver(hg.StdFileDriver())
 hg.MountFileDriver(hg.StdFileDriver('../assets/'), 'assets/')
 
 sel,scr_mode,scr_res = request_screen_mode(16/9)
+
 if sel=="ok":
 	Main.resolution.x,Main.resolution.y=scr_res.x,scr_res.y
 	Main.game_scale=Main.resolution.y / Main.original_resolution.y
