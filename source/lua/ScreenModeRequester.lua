@@ -24,6 +24,7 @@ local modes=nil
 local current_monitor=0
 local current_mode=0
 local ratio_filter=0
+local flag_windowed=false
 
 local screenModes={hg.FullscreenMonitor1,hg.FullscreenMonitor2,hg.FullscreenMonitor3}
 local smr_screenMode=hg.FullscreenMonitor1
@@ -51,7 +52,13 @@ function gui_ScreenModeRequester()
                 end
             end
 			hg.ImGuiEndCombo()
-        end
+		end
+		
+		f, d = hg.ImGuiCheckbox("Windowed", flag_windowed)
+		if f then
+			flag_windowed = d
+		end
+
 		ok=hg.ImGuiButton("Ok")
 		hg.ImGuiSameLine()
 		cancel=hg.ImGuiButton("Quit")
@@ -94,7 +101,11 @@ function request_screen_mode(p_ratio_filter)
     plus:RenderUninit()
     
 	if select=="ok" then
-		smr_screenMode=screenModes[current_monitor+1]
+		if flag_windowed then
+			smr_screenMode=hg.Windowed
+		else 
+			smr_screenMode=screenModes[current_monitor+1]
+		end
 		rect=modes[current_monitor+1][current_mode+1].rect
         smr_resolution.x,smr_resolution.y=rect.ex-rect.sx,rect.ey-rect.sy
     end
