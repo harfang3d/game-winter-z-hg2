@@ -2,7 +2,7 @@
 
 ## WARNING
 This project is aimed at HARFANG® 3D engine version 1.x.x. It is now superseded by [HARFANG® 3D 2.0](https://www.harfang3d.com).
-If you still need to run this project, you will require to specifically deploy the HARFANG 1.2.0 Python wheel.
+If you still need to run this project, you will require to specifically deploy the HARFANG 1.2.0 Python wheel/Lua extension.
 
 **WinterZ** is a game by **Jerome Sentex** (Wizital) for [Android](https://play.google.com/store/apps/details?id=net.textoo.winterz) and iOS. The game was reprogrammed both in Python and Lua using the HARFANG 3D framework.
 
