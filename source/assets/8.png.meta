@@ -1,8 +1,0 @@
-{
-	"profiles": {
-		"default": {
-			"mag-filter": "Nearest",
-			"min-filter": "Nearest"
-		}
-	}
-}

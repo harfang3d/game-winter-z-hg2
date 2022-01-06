@@ -344,10 +344,10 @@ def init_game():
 	Main.flames = ParticlesEngine(Main.sprites["explode"])
 
 	# --- Sfx:
-	# Main.sounds = {"collision": Main.audio.LoadSound("pipecollision.wav"),
-	# 			   "crash": Main.audio.LoadSound("crash.wav"),
-	# 			   "checkpoint": Main.audio.LoadSound("pipe.wav"),
-	# 			   "thrust": Main.audio.LoadSound("thrust.wav")}
+	Main.sounds = {"collision": hg.LoadWAVSoundAsset("pipecollision.wav"),
+	 			   "crash": hg.LoadWAVSoundAsset("crash.wav"),
+	 			   "checkpoint": hg.LoadWAVSoundAsset("pipe.wav"),
+	 			   "thrust": hg.LoadWAVSoundAsset("thrust.wav")}
 
 	# --- Game parameters:
 	Main.scrolls_x = [0] * 10
@@ -357,11 +357,9 @@ def init_game():
 
 
 def start_ambient_sound():
-	sound = Main.audio.LoadSound("winterZ.ogg")
-	params = hg.MixerChannelState()
-	params.loop_mode = hg.MixerRepeat
-	params.volume = 1
-	Main.audio.Start(sound, params)
+	sound = hg.LoadWAVSoundAsset("winterZ.wav")
+	hg.PlayStereo(sound, hg.StereoSourceState(1, hg.SR_Loop))
+
 
 
 def init_sprites():
@@ -543,7 +541,7 @@ def draw_panel():
 def update_score():
 	if Main.sprites["flag"].position.x < Main.ship.position.x < Main.sprites["flag"].position_prec.x:
 		Main.score += 1
-		#Main.audio.Start(Main.sounds["checkpoint"])
+		hg.PlayStereo(Main.sounds["checkpoint"], hg.StereoSourceState(1))
 
 def update_difficulty_level():
 
@@ -551,7 +549,7 @@ def update_difficulty_level():
 	Main.sprites["difficulty_level"][Main.difficulty_level].draw()
 
 	# Set level:
-	if hg.ReadKeyboard().Key(hg.K_F1):
+	if keyboard.Pressed(hg.K_F1):
 		if Main.difficulty_level=="easy": Main.difficulty_level="normal"
 		elif Main.difficulty_level=="normal": Main.difficulty_level="hard"
 		elif Main.difficulty_level=="hard": Main.difficulty_level="easy"
@@ -578,7 +576,7 @@ def collisions():
 				if Main.ship.position.y + hs > pillar_top.position.y or Main.ship.position.y - hs < pillar_bot.position.y + convy(
 						121):
 					Main.ship.is_broken = True
-					#Main.audio.Start(Main.sounds["collision"])
+					hg.PlayStereo(Main.sounds["collision"], hg.StereoSourceState(1))
 					if Main.ship.position.x + ws < pillar_top.position.x + Main.scrolls_x[3]:
 						Main.ship.broken_face = True
 					return
@@ -590,7 +588,7 @@ def collisions():
 			if xmin - wp < pillar.position.x < xmax:
 				if Main.ship.position.y - hs < pillar.position.y + convy(121):
 					Main.ship.is_broken = True
-					#Main.audio.Start(Main.sounds["collision"])
+					hg.PlayStereo(Main.sounds["collision"], hg.StereoSourceState(1))
 					if Main.ship.position.x + ws < pillar.position.x + Main.scrolls_x[3]:
 						Main.ship.broken_face = True
 					return
@@ -715,7 +713,7 @@ def intro_phase():
 
 	if not play_animations():
 
-		if hg.ReadKeyboard().Key(hg.K_Space):
+		if keyboard.Pressed(hg.K_Space):
 			reset_ingame_phase()
 			game_phase = ingame_phase
 
@@ -742,9 +740,9 @@ def ingame_phase():
 	# Ship control:
 	game_phase = ingame_phase
 	if not Main.ship.is_broken:
-		if hg.ReadKeyboard().Key(hg.K_Space) and Main.ship.position.y < 1:
+		if keyboard.Pressed(hg.K_Space) and Main.ship.position.y < 1:
 			Main.ship.start_booster()
-			#Main.audio.Start(Main.sounds["thrust"])
+			hg.PlayStereo(Main.sounds["thrust"], hg.StereoSourceState(1))
 		collisions()
 	else:
 		if Main.ship.broken_face:
@@ -753,7 +751,7 @@ def ingame_phase():
 			Main.scrolling_speed *= 0.97
 
 		if Main.ship.position.y < convy(79):
-			#Main.audio.Start(Main.sounds["crash"])
+			hg.PlayStereo(Main.sounds["crash"], hg.StereoSourceState(1))
 			reset_score_phase()
 			game_phase = score_phase
 
@@ -787,7 +785,7 @@ def score_phase():
 
 		draw_score_panel()
 
-		if hg.ReadKeyboard().Key(hg.K_Space):
+		if keyboard.Pressed(hg.K_Space):
 			reset_intro_phase()
 			game_phase = intro_phase
 
@@ -802,6 +800,7 @@ def score_phase():
 
 # initialize  Harfang
 hg.InputInit()
+hg.AudioInit()
 hg.WindowSystemInit()
 
 keyboard = hg.Keyboard()
@@ -834,14 +833,14 @@ vtx = hg.Vertices(vtx_layout, 3)
 #Main.audio.Open()
 
 init_game()
-#start_ambient_sound()
+start_ambient_sound()
 
 Main.score = 0
 Main.score_max = 0
 reset_intro_phase()
 game_phase = intro_phase
 
-while not hg.ReadKeyboard().Key(hg.K_Escape):
+while not keyboard.Pressed(hg.K_Escape):
 	keyboard.Update()
 	mouse.Update()
 	dt = hg.TickClock()
@@ -871,5 +870,7 @@ while not hg.ReadKeyboard().Key(hg.K_Escape):
 	hg.Frame()
 	hg.UpdateWindow(win)
 
+hg.AudioShutdown()
+hg.InputShutdown()
 hg.RenderShutdown()
 hg.DestroyWindow(win)
