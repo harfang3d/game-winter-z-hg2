@@ -77,8 +77,8 @@ class Sprite:
 		self.position = hg.Vec2(0, 0)
 		self.position_prec = hg.Vec2(0, 0)
 		self.vertices = hg.Vertices(Sprite.vtx_layout, 4)
-		self.texture, self.textureinfo = hg.LoadTextureFromAssets(fileName, 0)
-		print(self.textureinfo.width, self.textureinfo.height)
+		self.texture, self.textureinfo = hg.LoadTextureFromAssets(fileName, hg.TF_UClamp | hg.TF_VClamp | hg.TF_SamplerMinPoint | hg.TF_SamplerMagPoint)
+		print("width: ", self.textureinfo.width, "height: ", self.textureinfo.height)
 		self.scale = scale
 		if center is None:
 			self.center = hg.Vec2(self.textureinfo.width // 2, self.textureinfo.height // 2)
@@ -86,24 +86,8 @@ class Sprite:
 			self.center = hg.Vec2(center)
 
 	def draw(self, position=None, color=None):
-		# if position is None:
-		# 	position = self.position
-		# if color is None:
-		# 	color = self.color
-		# dimensions = hg.Vec2(self.textureinfo.width, self.textureinfo.height)
-		# p0 = self.center * self.scale + hg.Vec2(position.x, position.y)
-		# p1 = p0 + dimensions * self.scale
-		# print(self.scale)
-		# self.vertices.Clear()
-		# self.vertices.Begin(0).SetPos(hg.Vec3(p0.x, p0.y, Sprite.z_depth)).SetTexCoord0(hg.Vec2(0, 1)).End() # en haut a gauche
-		# self.vertices.Begin(1).SetPos(hg.Vec3(p0.x, p1.y, Sprite.z_depth)).SetTexCoord0(hg.Vec2(0, 0)).End() # en bas a gauche
-		# self.vertices.Begin(2).SetPos(hg.Vec3(p1.x, p1.y, Sprite.z_depth)).SetTexCoord0(hg.Vec2(1, 0)).End() # en haut a droite
-		# self.vertices.Begin(3).SetPos(hg.Vec3(p1.x, p0.y, Sprite.z_depth)).SetTexCoord0(hg.Vec2(1, 1)).End() # en bas a droite
-		# quad_idx = [0, 3, 2, 0, 2, 1]
-
-		# Display:
-		# hg.DrawTriangles(0, quad_idx, self.vertices, shader_texture, [], [hg.MakeUniformSetTexture("s_texTexture", self.texture, 0)], render_state_quad)
 		self.draw_rot(0, position, color)
+
 	def draw_rot(self, angle=0, position=None, color=None):
 		if position is None:
 			position = self.position
@@ -114,16 +98,6 @@ class Sprite:
 		p0 = self.center * -1
 		p1 = p0 + hg.Vec2(w, h)
 		Sprite.z_depth -= 0.1
-		"""
-		ca = cos(self.angle)
-		sa = sin(self.angle)
-
-
-		p0r = hg.Vec2(p0.x*ca-p0.y*sa ,p0.x*sa+p0.y*ca) * self.scale + self.position
-		p1r = hg.Vec2(p0.x*ca-p1.y*sa ,p0.x*sa+p1.y*ca) *self.scale + self.position
-		p2r = hg.Vec2(p1.x*ca-p1.y*sa  ,p1.x*sa+p1.y*ca) * self.scale + self.position
-		p3r = hg.Vec2(p1.x*ca-p0.y*sa  ,p1.x*sa+p0.y*ca) * self.scale + self.position
-		"""
 
 		mat = hg.TransformationMat4(
 			hg.Vec3(position.x * Main.resolution.x, position.y * Main.resolution.y, 0), hg.Vec3(0, 0, angle),
@@ -816,21 +790,9 @@ hg.RenderReset(res_x, res_y, hg.RF_MSAA8X | hg.RF_FlipAfterRender | hg.RF_FlushA
 
 hg.AddAssetsFolder("../assets_compiled")
 
-
 render_state_quad = hg.ComputeRenderState(hg.BM_Alpha, hg.DT_Less, hg.FC_Disabled)
 shader_texture = hg.LoadProgramFromAssets("shaders/texture")
 shader_white = hg.LoadProgramFromAssets("shaders/white")
-
-# vertices
-vtx_layout = hg.VertexLayout()
-vtx_layout.Begin()
-vtx_layout.Add(hg.A_Position, 3, hg.AT_Float)
-vtx_layout.End()
-
-vtx = hg.Vertices(vtx_layout, 3)
-
-#Main.audio = hg.CreateMixer()
-#Main.audio.Open()
 
 init_game()
 start_ambient_sound()
@@ -859,13 +821,6 @@ while not keyboard.Pressed(hg.K_Escape):
 	Main.sprites["background"].draw()
 
 	game_phase = game_phase()
-
-	# Rendering:
-	# vtx.Clear()
-	# vtx.Begin(0).SetPos(hg.Vec3(0,0,1)).End()
-	# vtx.Begin(1).SetPos(hg.Vec3(0,0.75,1)).End()
-	# vtx.Begin(2).SetPos(hg.Vec3(0.75,0,1)).End()
-	# hg.DrawTriangles(0, vtx, shader_white)  # submit all lines in a single call
 
 	hg.Frame()
 	hg.UpdateWindow(win)
