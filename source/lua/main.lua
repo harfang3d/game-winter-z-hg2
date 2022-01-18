@@ -15,9 +15,6 @@
 
 
 hg = require("harfang")
---smr = require("source/lua/ScreenModeRequester") 
-smr = require("ScreenModeRequester")
-hg.LoadPlugins()
 
 
 -- ===================================================================================================
@@ -29,8 +26,9 @@ hg.LoadPlugins()
 local Main = {
 	-- Display settings:
 	plus = nil,
-	original_resolution = hg.Vector2(455, 256),
-	resolution = hg.Vector2(1280, 720),
+	z_depth = 100,
+	original_resolution = hg.Vec2(455, 256),
+	resolution = hg.Vec2(1280, 720),
 	game_scale = 0,
 	antialiasing = 0,
 	screenMode = hg.Windowed,
@@ -76,7 +74,9 @@ local Sprite =
 	color = nil,
 	position = nil,
 	position_prec = nil,
+	vertices = nil,
 	texture = nil,
+	textureinfo = nil,
 	scale = nil,
 	center = nil
 }
@@ -86,32 +86,31 @@ function Sprite:new( fileName, scale, center)
 		setmetatable(o,self)
 		self.__index=self
 		o.color = hg.Color.White
-		o.position = hg.Vector2(0, 0)
-		o.position_prec = hg.Vector2(0, 0)
-		o.texture = Main.plus:LoadTexture(fileName)
-		while not o.texture:IsReady() do
-		end
+		o.position = hg.Vec2(0, 0)
+		o.position_prec = hg.Vec2(0, 0)
+		o.vertices = hg.Vertices(vtx_layout, 4)
+		o.texture, o.textureinfo = hg.LoadTextureFromAssets(fileName, hg.TF_UClamp | hg.TF_VClamp | hg.TF_SamplerMinPoint | hg.TF_SamplerMagPoint)
 		o.scale = scale
 		if center == nil then
-			o.center = hg.Vector2(o.texture:GetWidth() / 2, o.texture:GetHeight() / 2)
+			o.center = hg.Vec2(o.textureinfo.width / 2, o.textureinfo.height / 2)
 		else
-			o.center = hg.Vector2(center)
+			o.center = hg.Vec2(center)
 		end
 		return o
 end
 
 function Sprite:draw(position, color)
-		if position == nil then
-			position = self.position
-		end
-		if color == nil then
-			color = self.color
-		end
-		dimensions = hg.Vector2(self.texture:GetWidth(), self.texture:GetHeight())
-		p0 = self.center * -self.scale + hg.Vector2(position.x * Main.resolution.x, position.y * Main.resolution.y)
-		p1 = p0 + dimensions * self.scale
-		Main.plus:Quad2D(p0.x, p0.y, p0.x, p1.y, p1.x, p1.y, p1.x, p0.y, color, color, color, color, self.texture)
-
+		--if position == nil then
+		--	position = self.position
+		--end
+		--if color == nil then
+		--	color = self.color
+		--end
+		--dimensions = hg.Vec2(self.textureinfo.width, self.textureinfo.height)
+		--p0 = self.center * -self.scale + hg.Vec2(position.x * Main.resolution.x, position.y * Main.resolution.y)
+		--p1 = p0 + dimensions * self.scale
+		--Main.plus:Quad2D(p0.x, p0.y, p0.x, p1.y, p1.x, p1.y, p1.x, p0.y, color, color, color, color, self.texture)
+		self:draw_rot(0, position, color)
 end
 		
 function Sprite:draw_rot(angle, position, color)
@@ -121,25 +120,28 @@ function Sprite:draw_rot(angle, position, color)
 		if color == nil then
 			color = self.color
 		end
-		w, h = self.texture:GetWidth(), self.texture:GetHeight()
+		w, h = self.textureinfo.width, self.textureinfo.height
 		-- Rotate:
 		p0 = self.center * -1
-		p1 = p0 + hg.Vector2(w, h)
+		p1 = p0 + hg.Vec2(w, h)
+		Main.z_depth = Main.z_depth - 0.1
 
+		mat = hg.TransformationMat4(
+			hg.Vec3(position.x * Main.resolution.x, position.y * Main.resolution.y, 0), hg.Vec3(0, 0, angle),
+			hg.Vec3(self.scale, self.scale, 1))
 
-		mat = hg.Matrix4.TransformationMatrix(
-				hg.Vector3(position.x * Main.resolution.x, position.y * Main.resolution.y, 0), 
-				hg.Vector3(0, 0, angle),
-				hg.Vector3(self.scale, self.scale, 1))
-
-		p0r = mat * hg.Vector3(p0.x, p0.y, 0)
-		p1r = mat * hg.Vector3(p0.x, p1.y, 0)
-		p2r = mat * hg.Vector3(p1.x, p1.y, 0)
-		p3r = mat * hg.Vector3(p1.x, p0.y, 0)
+		self.vertices:Clear()
+		self.vertices:Begin(0):SetPos(mat * hg.Vec3(p0.x, p0.y, Main.z_depth)):SetTexCoord0(hg.Vec2(0, 1)):End()
+		self.vertices:Begin(1):SetPos(mat * hg.Vec3(p0.x, p1.y, Main.z_depth)):SetTexCoord0(hg.Vec2(0, 0)):End()
+		self.vertices:Begin(2):SetPos(mat * hg.Vec3(p1.x, p1.y, Main.z_depth)):SetTexCoord0(hg.Vec2(1, 0)):End()
+		self.vertices:Begin(3):SetPos(mat * hg.Vec3(p1.x, p0.y, Main.z_depth)):SetTexCoord0(hg.Vec2(1, 1)):End()
+		quad_idx = {0, 3, 2, 0, 2, 1}
 
 		-- Display:
-		Main.plus:Quad2D(p0r.x, p0r.y, p1r.x, p1r.y, p2r.x, p2r.y, p3r.x, p3r.y, color, color, color, color,
-						 self.texture)
+		uniformvalues = hg.MakeUniformSetValue("color", hg.Vec4(color.r, color.g, color.b, color.a))
+		hg.DrawTriangles(0, quad_idx, self.vertices, shader_texture, {uniformvalues}, {hg.MakeUniformSetTexture("s_texTexture", self.texture, 0)}, render_state_quad)
+
+
 end
 						 
 function Sprite:set_center(cx, cy)
@@ -147,11 +149,11 @@ function Sprite:set_center(cx, cy)
 end
 	
 function Sprite:get_width()
-	return self.texture:GetWidth()
+	return self.textureinfo.width
 end
 	
 function Sprite:get_height()
-	return self.texture:GetHeight()
+	return self.textureinfo.width
 end
 
 
@@ -171,7 +173,7 @@ function SpriteAnimator:new(sprite, end_position, end_color, start_delay,duratio
 		setmetatable(o,self)
 		self.__index=self
 		o.sprite = sprite
-		o.start_position = hg.Vector2(sprite.position)
+		o.start_position = hg.Vec2(sprite.position)
 		o.start_color = sprite.color
 		o.end_color = end_color
 		o.end_position = end_position
@@ -217,7 +219,7 @@ function SpriteInstance:new(sprite,position)
 		setmetatable(o,self)
 		self.__index=self
 		o.sprite = sprite
-		o.position = hg.Vector2(position)
+		o.position = hg.Vec2(position)
 		return o
 end
 
@@ -244,7 +246,7 @@ function Ship:new(frames)
 		o={}
 		setmetatable(o,self)
 		self.__index=self
-		o.position = hg.Vector2(1 / 3, 0)
+		o.position = hg.Vec2(1 / 3, 0)
 		o.frames = frames
 		o.angle = 0
 		o.frame = 0
@@ -274,7 +276,7 @@ end
 		
 function Ship:waiting()
 	self:inc_frame()
-	self.position.y = 0.67 + convy(5) * math.sin(hg.time_to_sec_f(Main.plus:GetClock()) * 4)
+	self.position.y = 0.67 + convy(5) * math.sin(hg.time_to_sec_f(hg.GetClock()) * 4)
 end
 	
 function Ship:update_kinetic()
@@ -399,7 +401,7 @@ function ParticlesEngine:draw(position, scrool_x_speed)
 			particle.color = color
 			particle.color.a = math.max(0.5, 1 - (particle.scale - self.min_scale) / (self.max_scale - self.min_scale))
 			particle.age = 0
-			particle.position = hg.Vector2(position)
+			particle.position = hg.Vec2(position)
 
 			particle.x_speed = uniform(-0.02, 0.02)
 		end
@@ -447,10 +449,10 @@ function init_game()
 	Main.flames = ParticlesEngine:new(Main.sprites["explode"])
 
 	-- --- Sfx:
-	Main.sounds = {["collision"] = Main.audio:LoadSound("assets/pipecollision.wav"),
-				   ["crash"] = Main.audio:LoadSound("assets/crash.wav"),
-				   ["checkpoint"] = Main.audio:LoadSound("assets/pipe.wav"),
-				   ["thrust"]  = Main.audio:LoadSound("assets/thrust.wav")}
+	Main.sounds = {["collision"] = hg.LoadWAVSoundAsset("pipecollision.wav"),
+				   ["crash"] = hg.LoadWAVSoundAsset("crash.wav"),
+				   ["checkpoint"] = hg.LoadWAVSoundAsset("pipe.wav"),
+				   ["thrust"]  = hg.LoadWAVSoundAsset("thrust.wav")}
 
 	-- --- Game parameters:
 	Main.scrolls_x = {0,0,0,0,0,0,0,0,0,0}
@@ -460,61 +462,58 @@ function init_game()
 end
 
 function start_ambient_sound()
-	sound = Main.audio:LoadSound("assets/winterZ.ogg")
-	params = hg.MixerChannelState()
-	params.loop_mode = hg.MixerRepeat
-	params.volume = 1
-	Main.audio:Start(sound, params)
+	sound = hg.LoadWAVSoundAsset("winterZ.wav")
+	hg.PlayStereo(sound, hg.StereoSourceState(1, hg.SR_Loop))
 end
 
 function init_sprites()
 	Main.sprites = {["ship"] = {}, ["numbers"] = {}, ["min_numbers"] = {}, ["pillars"] = {}, ["parallaxes"] = {}, ["vapors"] = {},
-					["background"] = Sprite:new("assets/bg4_16_9.png", Main.game_scale, hg.Vector2(0, 0)),
-					["flag"] = Sprite:new("assets/checkpoint.png", Main.game_scale, hg.Vector2(5, 0)),
-					["explode"] = Sprite:new("assets/boom2.png", Main.game_scale,nil),
-					["title"] = Sprite:new("assets/title_x2.png", Main.game_scale,nil),
-					["get_ready"] = Sprite:new("assets/getready.png", Main.game_scale,nil),
-					["explain"] = Sprite:new("assets/explain_space.png", Main.game_scale,nil),
-					["gameover"] = Sprite:new("assets/gameover.png", Main.game_scale,nil),
-					["panel"] = Sprite:new("assets/panel.png", Main.game_scale,nil),
+					["background"] = Sprite:new("bg4_16_9.png", Main.game_scale, hg.Vec2(0, 0)),
+					["flag"] = Sprite:new("checkpoint.png", Main.game_scale, hg.Vec2(5, 0)),
+					["explode"] = Sprite:new("boom2.png", Main.game_scale,nil),
+					["title"] = Sprite:new("title_x2.png", Main.game_scale,nil),
+					["get_ready"] = Sprite:new("getready.png", Main.game_scale,nil),
+					["explain"] = Sprite:new("explain_space.png", Main.game_scale,nil),
+					["gameover"] = Sprite:new("gameover.png", Main.game_scale,nil),
+					["panel"] = Sprite:new("panel.png", Main.game_scale,nil),
                     ["difficulty_level"] = {
-                        ["easy"]=Sprite:new("assets/level_easy.png", Main.game_scale,nil),
-                        ["normal"]=Sprite:new("assets/level_normal.png", Main.game_scale,nil),
-                        ["hard"]=Sprite:new("assets/level_hard.png", Main.game_scale,nil)
+                        ["easy"]=Sprite:new("level_easy.png", Main.game_scale,nil),
+                        ["normal"]=Sprite:new("level_normal.png", Main.game_scale,nil),
+                        ["hard"]=Sprite:new("level_hard.png", Main.game_scale,nil)
                         }
                     }
 	-- Ship frames:
 	for n=0, 4-1, 1
 	do
-		spr=Sprite:new("assets/ship_"..n..".png", Main.game_scale, hg.Vector2(28, 20))
+		spr=Sprite:new("ship_"..n..".png", Main.game_scale, hg.Vec2(28, 20))
 		table.insert(Main.sprites["ship"],spr)
 	end
 		
 	-- Numbers font:
 	for n=0, 10-1, 1
 	do
-		spr = Sprite:new("assets/"..n..".png", Main.game_scale,nil)
+		spr = Sprite:new(""..n..".png", Main.game_scale,nil)
 		table.insert(Main.sprites["numbers"],spr)
-		spr = Sprite:new("assets/min"..n..".png", Main.game_scale,nil)
+		spr = Sprite:new("min"..n..".png", Main.game_scale,nil)
 		table.insert(Main.sprites["min_numbers"],spr)
 	end
 		
 	-- Pillars:
 	for n=0, 4-1, 1
 	do
-		spr = Sprite:new("assets/pillar_" ..n.. ".png", Main.game_scale, hg.Vector2(0, 0))
+		spr = Sprite:new("pillar_" ..n.. ".png", Main.game_scale, hg.Vec2(0, 0))
 		table.insert(Main.sprites["pillars"],spr)
 	end
 	
 	-- Parallaxes:
 	for i,n in pairs({"front2bottom", "front2top", "front1bottom", "front1top", "ground", "bg1", "bg2", "bg3", "bg3b"}) do
-		spr = Sprite:new("assets/"..n..".png", Main.game_scale, hg.Vector2(0, 0))
+		spr = Sprite:new(""..n..".png", Main.game_scale, hg.Vec2(0, 0))
 		table.insert(Main.sprites["parallaxes"],spr)
 	end
 		
 	-- Vapors:
 	for i,n in pairs({"vapor0", "vapor1"}) do
-		spr = Sprite:new("assets/" .. n .. ".png", Main.game_scale,nil)
+		spr = Sprite:new("" .. n .. ".png", Main.game_scale,nil)
 		table.insert(Main.sprites["vapors"],spr)
 	end
 end
@@ -524,7 +523,7 @@ function draw_flash()
 	if Main.collision_time < Main.flash_delay then
 		f = Main.collision_time / Main.flash_delay
 		color = hg.Color(1, 1, 1, 1 - f)
-		Main.plus:Quad2D(0, 0, 0, Main.resolution.y, Main.resolution.x, Main.resolution.y, Main.resolution.x, 0, color, color, color, color)
+		--Main.plus:Quad2D(0, 0, 0, Main.resolution.y, Main.resolution.x, Main.resolution.y, Main.resolution.x, 0, color, color, color, color)
 	end
 end
 
@@ -550,7 +549,7 @@ function draw_score()
 
 	for i,digit in pairs(digits) do
 		spr=Main.sprites["numbers"][digit+1]
-		spr:draw(hg.Vector2(x_offset, convy(216)))
+		spr:draw(hg.Vec2(x_offset, convy(216)))
 		x_offset = x_offset + convx(spr:get_width())
 	end
 end
@@ -566,14 +565,14 @@ function draw_score_panel()
 	for i,digit in pairs(score_digits) do
 		spr=Main.sprites["min_numbers"][digit+1]
 		x = x - convx(spr:get_width())
-		spr:draw(hg.Vector2(x, y_score))
+		spr:draw(hg.Vec2(x, y_score))
 	end
 		
 	x = pos.x + convx(51)
 	for i,digit in pairs(score_max_digits) do
 		spr=Main.sprites["min_numbers"][digit+1]
 		x = x - convx(spr:get_width())
-		spr:draw(hg.Vector2(x, y_score_max))
+		spr:draw(hg.Vec2(x, y_score_max))
 	end
 end
 	
@@ -582,8 +581,8 @@ function reset_pillars()
 	x = Main.original_resolution.x
 	for n=1,Main.num_doors,1 do
 		x = x + (Main.original_resolution.x + 26) / Main.num_doors
-		table.insert(Main.pillars_doors,SpriteInstance:new(Main.sprites["pillars"][math.floor(uniform(1, 5))], hg.Vector2(convx(x), 0)))
-		table.insert(Main.pillars_doors,SpriteInstance:new(Main.sprites["pillars"][math.floor(uniform(1, 5))], hg.Vector2(convx(x), 0)))
+		table.insert(Main.pillars_doors,SpriteInstance:new(Main.sprites["pillars"][math.floor(uniform(1, 5))], hg.Vec2(convx(x), 0)))
+		table.insert(Main.pillars_doors,SpriteInstance:new(Main.sprites["pillars"][math.floor(uniform(1, 5))], hg.Vec2(convx(x), 0)))
 		random_pillars_doors_y(Main.pillars_doors[#Main.pillars_doors-1], Main.pillars_doors[#Main.pillars_doors])
 	end
 		
@@ -591,7 +590,7 @@ function reset_pillars()
 	x = Main.original_resolution.x
 	for n=1,Main.num_pillars_bottom,1 do
 		x = x + (Main.original_resolution.x + 26) / Main.num_pillars_bottom
-		table.insert(Main.pillars_bottom,SpriteInstance:new(Main.sprites["pillars"][math.floor(uniform(1, 5))], hg.Vector2(convx(x), 0)))
+		table.insert(Main.pillars_bottom,SpriteInstance:new(Main.sprites["pillars"][math.floor(uniform(1, 5))], hg.Vec2(convx(x), 0)))
 		Main.pillars_bottom[#Main.pillars_bottom].position.y = random_pillar_bottom_y()
 	end
 end
@@ -615,8 +614,8 @@ function draw_pillars(speed)
 		x = Main.pillars_doors[1].position.x
 		table.remove(Main.pillars_doors,1)
 		table.remove(Main.pillars_doors,1)
-		table.insert(Main.pillars_doors,SpriteInstance:new(Main.sprites["pillars"][math.floor(uniform(1, 5))], hg.Vector2(x + x_restart, 0)))
-		table.insert(Main.pillars_doors,SpriteInstance:new(Main.sprites["pillars"][math.floor(uniform(1, 5))], hg.Vector2(x + x_restart, 0)))
+		table.insert(Main.pillars_doors,SpriteInstance:new(Main.sprites["pillars"][math.floor(uniform(1, 5))], hg.Vec2(x + x_restart, 0)))
+		table.insert(Main.pillars_doors,SpriteInstance:new(Main.sprites["pillars"][math.floor(uniform(1, 5))], hg.Vec2(x + x_restart, 0)))
 		random_pillars_doors_y(Main.pillars_doors[#Main.pillars_doors-1], Main.pillars_doors[#Main.pillars_doors])
 		
 		Main.doors_counter = Main.doors_counter - 1
@@ -628,7 +627,7 @@ function draw_pillars(speed)
 	if Main.pillars_bottom[1].position.x < -convx(26) + speed then
 		x = Main.pillars_bottom[1].position.x
 		table.remove(Main.pillars_bottom,1)
-		table.insert(Main.pillars_bottom,SpriteInstance:new(Main.sprites["pillars"][math.floor(uniform(1, 5))], hg.Vector2(x + x_restart, 0)))
+		table.insert(Main.pillars_bottom,SpriteInstance:new(Main.sprites["pillars"][math.floor(uniform(1, 5))], hg.Vec2(x + x_restart, 0)))
 		Main.pillars_bottom[#Main.pillars_bottom].position.y = random_pillar_bottom_y()
 	end
 		
@@ -646,7 +645,7 @@ function draw_pillars(speed)
 	-- draw flag:
 	pos = Main.pillars_doors[2 * Main.doors_counter + 2].position
 	Main.sprites["flag"].position_prec = Main.sprites["flag"].position
-	Main.sprites["flag"].position = hg.Vector2(pos.x + convx(13), pos.y + convy(121))
+	Main.sprites["flag"].position = hg.Vec2(pos.x + convx(13), pos.y + convy(121))
 	Main.sprites["flag"]:draw(nil,nil)
 end
 
@@ -688,13 +687,13 @@ end
 function update_score()
 	if Main.ship.position.x > Main.sprites["flag"].position.x and Main.ship.position.x < Main.sprites["flag"].position_prec.x then
 		Main.score = Main.score + 1
-		Main.audio:Start(Main.sounds["checkpoint"])
+		hg.PlayStereo(Main.sounds["checkpoint"], hg.StereoSourceState(1))
 	end
 end
 
 function update_difficulty_level()
     Main.sprites["difficulty_level"][Main.difficulty_level]:draw(nil,nil)
-    if Main.plus:KeyPress(hg.KeyF1) then
+    if keyboard:Pressed(hg.K_F1) then
         if Main.difficulty_level=="easy" then Main.difficulty_level="normal"
         elseif Main.difficulty_level=="normal" then Main.difficulty_level="hard"
         elseif Main.difficulty_level=="hard" then Main.difficulty_level="easy"
@@ -722,7 +721,7 @@ function collisions()
 				pillar_bot = Main.pillars_doors[i * 2 + 2]
 				if Main.ship.position.y + hs > pillar_top.position.y or Main.ship.position.y - hs < pillar_bot.position.y + convy(121) then
 					Main.ship.is_broken = true
-					Main.audio:Start(Main.sounds["collision"])
+					hg.PlayStereo(Main.sounds["collision"], hg.StereoSourceState(1))
 					if Main.ship.position.x + ws < pillar_top.position.x + Main.scrolls_x[4] then
 						Main.ship.broken_face = true
 					end
@@ -772,30 +771,30 @@ end
 
 function draw_parallaxes()
 	-- plan 10
-	Main.sprites["parallaxes"][9]:draw(hg.Vector2(Main.scrolls_x[10], convy(65)),nil)
-	Main.sprites["parallaxes"][9]:draw(hg.Vector2(Main.scrolls_x[10] + convx(256), convy(65)),nil)
-	Main.sprites["parallaxes"][9]:draw(hg.Vector2(Main.scrolls_x[10] + convx(512), convy(65)),nil)
+	Main.sprites["parallaxes"][9]:draw(hg.Vec2(Main.scrolls_x[10], convy(65)),nil)
+	Main.sprites["parallaxes"][9]:draw(hg.Vec2(Main.scrolls_x[10] + convx(256), convy(65)),nil)
+	Main.sprites["parallaxes"][9]:draw(hg.Vec2(Main.scrolls_x[10] + convx(512), convy(65)),nil)
 
 	-- plan 9
-	Main.sprites["parallaxes"][8]:draw(hg.Vector2(Main.scrolls_x[9], convy(65)),nil)
-	Main.sprites["parallaxes"][8]:draw(hg.Vector2(Main.scrolls_x[9] + convx(256), convy(65)),nil)
-	Main.sprites["parallaxes"][8]:draw(hg.Vector2(Main.scrolls_x[9] + convx(512), convy(65)),nil)
+	Main.sprites["parallaxes"][8]:draw(hg.Vec2(Main.scrolls_x[9], convy(65)),nil)
+	Main.sprites["parallaxes"][8]:draw(hg.Vec2(Main.scrolls_x[9] + convx(256), convy(65)),nil)
+	Main.sprites["parallaxes"][8]:draw(hg.Vec2(Main.scrolls_x[9] + convx(512), convy(65)),nil)
 
 	-- plan 8: vapor 1
 	draw_vapor(1, Main.scrolls_x[8])
 
 	-- plan 7
-	Main.sprites["parallaxes"][7]:draw(hg.Vector2(Main.scrolls_x[7], convy(24)),nil)
-	Main.sprites["parallaxes"][7]:draw(hg.Vector2(Main.scrolls_x[7] + convx(256), convy(24)),nil)
-	Main.sprites["parallaxes"][7]:draw(hg.Vector2(Main.scrolls_x[7] + convx(512), convy(24)),nil)
+	Main.sprites["parallaxes"][7]:draw(hg.Vec2(Main.scrolls_x[7], convy(24)),nil)
+	Main.sprites["parallaxes"][7]:draw(hg.Vec2(Main.scrolls_x[7] + convx(256), convy(24)),nil)
+	Main.sprites["parallaxes"][7]:draw(hg.Vec2(Main.scrolls_x[7] + convx(512), convy(24)),nil)
 
 	-- plan 6 vapor 0
 	draw_vapor(0, Main.scrolls_x[6])
 
 	-- plan 5
-	Main.sprites["parallaxes"][6]:draw(hg.Vector2(Main.scrolls_x[5], convy(14)),nil)
-	Main.sprites["parallaxes"][6]:draw(hg.Vector2(Main.scrolls_x[5] + convx(256), convy(14)),nil)
-	Main.sprites["parallaxes"][6]:draw(hg.Vector2(Main.scrolls_x[5] + convx(512), convy(14)),nil)
+	Main.sprites["parallaxes"][6]:draw(hg.Vec2(Main.scrolls_x[5], convy(14)),nil)
+	Main.sprites["parallaxes"][6]:draw(hg.Vec2(Main.scrolls_x[5] + convx(256), convy(14)),nil)
+	Main.sprites["parallaxes"][6]:draw(hg.Vec2(Main.scrolls_x[5] + convx(512), convy(14)),nil)
 
 	-- plan 4 : pillars
 	if #Main.pillars_doors > 0 then
@@ -811,27 +810,27 @@ function draw_parallaxes()
 	end
 		
 	-- plan 3
-	Main.sprites["parallaxes"][5]:draw(hg.Vector2(Main.scrolls_x[3], convy(-6)),nil)
-	Main.sprites["parallaxes"][5]:draw(hg.Vector2(Main.scrolls_x[3] + convx(256), convy(-6)),nil)
-	Main.sprites["parallaxes"][5]:draw(hg.Vector2(Main.scrolls_x[3] + convx(512), convy(-6)),nil)
+	Main.sprites["parallaxes"][5]:draw(hg.Vec2(Main.scrolls_x[3], convy(-6)),nil)
+	Main.sprites["parallaxes"][5]:draw(hg.Vec2(Main.scrolls_x[3] + convx(256), convy(-6)),nil)
+	Main.sprites["parallaxes"][5]:draw(hg.Vec2(Main.scrolls_x[3] + convx(512), convy(-6)),nil)
 
 	-- plan 2
-	Main.sprites["parallaxes"][4]:draw(hg.Vector2(Main.scrolls_x[2], convy(195)),nil)
-	Main.sprites["parallaxes"][3]:draw(hg.Vector2(Main.scrolls_x[2], 0),nil)
-	Main.sprites["parallaxes"][4]:draw(hg.Vector2(Main.scrolls_x[2] + convx(512), convy(195)),nil)
-	Main.sprites["parallaxes"][3]:draw(hg.Vector2(Main.scrolls_x[2] + convx(512), 0),nil)
+	Main.sprites["parallaxes"][4]:draw(hg.Vec2(Main.scrolls_x[2], convy(195)),nil)
+	Main.sprites["parallaxes"][3]:draw(hg.Vec2(Main.scrolls_x[2], 0),nil)
+	Main.sprites["parallaxes"][4]:draw(hg.Vec2(Main.scrolls_x[2] + convx(512), convy(195)),nil)
+	Main.sprites["parallaxes"][3]:draw(hg.Vec2(Main.scrolls_x[2] + convx(512), 0),nil)
 
 	-- plan 1
-	Main.sprites["parallaxes"][2]:draw(hg.Vector2(Main.scrolls_x[1], convy(195)),nil)
-	Main.sprites["parallaxes"][1]:draw(hg.Vector2(Main.scrolls_x[1], -convy(5)),nil)
-	Main.sprites["parallaxes"][2]:draw(hg.Vector2(Main.scrolls_x[1] + convx(512), convy(195)),nil)
-	Main.sprites["parallaxes"][1]:draw(hg.Vector2(Main.scrolls_x[1] + convx(512), -convy(5)),nil)
+	Main.sprites["parallaxes"][2]:draw(hg.Vec2(Main.scrolls_x[1], convy(195)),nil)
+	Main.sprites["parallaxes"][1]:draw(hg.Vec2(Main.scrolls_x[1], -convy(5)),nil)
+	Main.sprites["parallaxes"][2]:draw(hg.Vec2(Main.scrolls_x[1] + convx(512), convy(195)),nil)
+	Main.sprites["parallaxes"][1]:draw(hg.Vec2(Main.scrolls_x[1] + convx(512), -convy(5)),nil)
 end
 	
 function play_animations()
 	anims_playing = false
 	for i,animation in pairs(Main.animations) do
-		anims_playing = anims_playing or animation:update_animation(hg.time_to_sec_f(Main.plus:GetClock()))
+		anims_playing = anims_playing or animation:update_animation(hg.time_to_sec_f(hg.GetClock()))
 	end
 	return anims_playing
 end
@@ -847,23 +846,23 @@ function reset_intro_phase()
 	Main.flames:reset()
 	Main.scrolling_speed = 0.9
 
-	-- Main.sprites["vapors"][0].position = hg.Vector2()
-	-- Main.sprites["vapors"][1].position = hg.Vector2()
+	-- Main.sprites["vapors"][0].position = hg.Vec2()
+	-- Main.sprites["vapors"][1].position = hg.Vec2()
 
 	random_vapor_pos(0)
 	random_vapor_pos(1)
 
 	Main.doors_counter = 0
 
-	Main.sprites["title"].position = hg.Vector2(0.5, convy(300))
-	Main.sprites["explain"].position = hg.Vector2(0.5, 0.67)
+	Main.sprites["title"].position = hg.Vec2(0.5, convy(300))
+	Main.sprites["explain"].position = hg.Vec2(0.5, 0.67)
 	Main.sprites["explain"].color = hg.Color(1, 1, 1, 0)
 
-	Main.animations = {SpriteAnimator:new(Main.sprites["title"], hg.Vector2(0.5, convy(221)), hg.Color.White, 0, 0.5),
-					   SpriteAnimator:new(Main.sprites["explain"], hg.Vector2(0.5, 0.67), hg.Color.White, 0.5, 0.5) }
+	Main.animations = {SpriteAnimator:new(Main.sprites["title"], hg.Vec2(0.5, convy(221)), hg.Color.White, 0, 0.5),
+					   SpriteAnimator:new(Main.sprites["explain"], hg.Vec2(0.5, 0.67), hg.Color.White, 0.5, 0.5) }
 
     for i,sprite in pairs(Main.sprites["difficulty_level"]) do
-        sprite.position=hg.Vector2(0.5,convy(120))
+        sprite.position=hg.Vec2(0.5,convy(120))
     end
 end
 
@@ -881,7 +880,7 @@ function intro_phase()
 
 	if not play_animations() then
 
-		if Main.plus:KeyPress(hg.KeySpace) then
+		if keyboard:Pressed(hg.K_Space) then
 			reset_ingame_phase()
 			game_phase = ingame_phase
 		end
@@ -909,9 +908,9 @@ function ingame_phase()
 	-- Ship control:
 	game_phase = ingame_phase
 	if not Main.ship.is_broken then
-		if Main.plus:KeyPress(hg.KeySpace) and Main.ship.position.y < 1 then
+		if keyboard:Pressed(hg.K_Space) and Main.ship.position.y < 1 then
 			Main.ship:start_booster()
-			Main.audio:Start(Main.sounds["thrust"])
+			hg.PlayStereo(Main.sounds["thrust"], hg.StereoSourceState(1))
 		end
 		collisions()
 	else
@@ -921,7 +920,7 @@ function ingame_phase()
 			Main.scrolling_speed = Main.scrolling_speed * 0.97
 		end
 		if Main.ship.position.y < convy(79) then
-			Main.audio:Start(Main.sounds["crash"])
+			hg.PlayStereo(Main.sounds["crash"], hg.StereoSourceState(1))
 			reset_score_phase()
 			game_phase = score_phase
 		end
@@ -931,13 +930,13 @@ end
 
 function reset_score_phase()
 	Main.sprites["title"] = Main.sprites["get_ready"]
-	Main.sprites["gameover"].position = hg.Vector2(0.5, convy(224 + 150))
-	Main.sprites["panel"].position = hg.Vector2(0.5, convy(164 + 150))
+	Main.sprites["gameover"].position = hg.Vec2(0.5, convy(224 + 150))
+	Main.sprites["panel"].position = hg.Vec2(0.5, convy(164 + 150))
 	if Main.score > Main.score_max then
 		Main.score_max = Main.score
 	end
-	Main.animations = {SpriteAnimator:new(Main.sprites["gameover"], hg.Vector2(0.5, convy(224)), hg.Color.White, 0, 0.5),
-					   SpriteAnimator:new(Main.sprites["panel"], hg.Vector2(0.5, convy(164)), hg.Color.White, 0, 0.5)}
+	Main.animations = {SpriteAnimator:new(Main.sprites["gameover"], hg.Vec2(0.5, convy(224)), hg.Color.White, 0, 0.5),
+					   SpriteAnimator:new(Main.sprites["panel"], hg.Vec2(0.5, convy(164)), hg.Color.White, 0, 0.5)}
 end
 
 function score_phase()
@@ -956,7 +955,7 @@ function score_phase()
 
 		draw_score_panel()
 
-		if Main.plus:KeyPress(hg.KeySpace) then
+		if keyboard:Pressed(hg.K_Space) then
 			reset_intro_phase()
 			game_phase = intro_phase
 		end
@@ -971,52 +970,62 @@ end
 
 -- ==================================================================================================
 
-Main.game_scale = Main.resolution.y / Main.original_resolution.y
+-- initialize  Harfang
+hg.InputInit()
+hg.AudioInit()
+hg.WindowSystemInit()
 
-Main.plus = hg.GetPlus()
-hg.LoadPlugins()
-hg.MountFileDriver(hg.StdFileDriver())
-hg.MountFileDriver(hg.StdFileDriver('../assets/'), 'assets/')
---hg.MountFileDriver(hg.StdFileDriver('source/assets/'), 'assets/')
+keyboard = hg.Keyboard()
+mouse = hg.Mouse()
 
---Main.plus:CreateWorkers()
+res_x, res_y = 1920, 1080
+Main.resolution.x,Main.resolution.y=res_x,res_y
+Main.game_scale=Main.resolution.y / Main.original_resolution.y
 
-sel,scr_mode,scr_res = request_screen_mode(16/9)
-if sel=="ok" then
-	Main.resolution.x,Main.resolution.y=scr_res.x,scr_res.y
+win = hg.NewWindow("WinterZ", res_x, res_y, 32)--, hg.WV_Fullscreen)
+hg.RenderInit(win)
+hg.RenderReset(res_x, res_y, hg.RF_MSAA8X | hg.RF_FlipAfterRender | hg.RF_FlushAfterRender | hg.RF_MaxAnisotropy | hg.RF_VSync)
+
+hg.AddAssetsFolder("../assets_compiled")
+
+vtx_layout = hg.VertexLayoutPosFloatTexCoord0UInt8()
+render_state_quad = hg.ComputeRenderState(hg.BM_Alpha, hg.DT_Less, hg.FC_Disabled)
+shader_texture = hg.LoadProgramFromAssets("shaders/texture")
+shader_white = hg.LoadProgramFromAssets("shaders/white")
+
+init_game()
+start_ambient_sound()
+
+Main.score = 0
+Main.score_max = 0
+reset_intro_phase()
+game_phase = intro_phase
+
+while not keyboard:Pressed(hg.K_Escape) do
+	keyboard:Update()
+	mouse:Update()
+	dt = hg.TickClock()
+	Main.z_depth = 100
+
+	hg.SetViewClear(0, hg.CF_Color | hg.CF_Depth, hg.ColorI(64, 64, 64), 1, 0)
+	hg.SetViewRect(0, 0, 0, res_x, res_y)
+
+	Main.resolution.x,Main.resolution.y=res_x,res_y
 	Main.game_scale=Main.resolution.y / Main.original_resolution.y
-	Main.screenMode=scr_mode
 
-	Main.plus:RenderInit(Main.resolution.x, Main.resolution.y, Main.antialiasing, Main.screenMode)
-	Main.plus:SetBlend2D(hg.BlendAlpha)
+	Main.delta_t = hg.time_to_sec_f(dt) * Main.game_speed[Main.difficulty_level]
 
-	Main.audio = hg.CreateMixer()
-	Main.audio:Open()
+	hg.SetViewOrthographic(0, 0, 0, res_x, res_y, hg.TransformationMat4(hg.Vec3(res_x / 2, res_y / 2, 0), hg.Vec3(0, 0, 0), hg.Vec3(1, 1, 1)), 0, 101, res_y)
 
-	init_game()
-	start_ambient_sound()
+	Main.sprites["background"]:draw()
 
-	Main.score = 0
-	Main.score_max = 0
-	reset_intro_phase()
-	game_phase = intro_phase
+	game_phase = game_phase()
 
-	-- -----------------------------------------------
-	--                   Main loop
-	-- -----------------------------------------------
-
-
-	while not Main.plus:KeyDown(hg.KeyEscape) and not Main.plus:IsAppEnded() do
-		Main.delta_t = hg.time_to_sec_f(Main.plus:UpdateClock()) * Main.game_speed[Main.difficulty_level]
-
-		-- Rendering:
-		Main.sprites["background"]:draw(nil,nil)
-		game_phase = game_phase()
-
-		-- End rendering:
-		Main.plus:Flip()
-		Main.plus:EndFrame()
-	end
-	--Main.plus:DeleteWorkers()
-	Main.plus:RenderUninit()
+	hg.Frame()
+	hg.UpdateWindow(win)
 end
+
+hg.AudioShutdown()
+hg.InputShutdown()
+hg.RenderShutdown()
+hg.DestroyWindow(win)
