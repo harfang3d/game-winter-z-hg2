@@ -739,7 +739,7 @@ function collisions()
 			if pillar.position.x > xmin - wp and pillar.position.x  < xmax then
 				if Main.ship.position.y - hs < pillar.position.y + convy(121) then
 					Main.ship.is_broken = true
-					Main.audio:Start(Main.sounds["collision"])
+					hg.PlayStereo(Main.sounds["collision"], hg.StereoSourceState(1))
 					if Main.ship.position.x + ws < pillar.position.x + Main.scrolls_x[4] then
 						Main.ship.broken_face = true
 					end
