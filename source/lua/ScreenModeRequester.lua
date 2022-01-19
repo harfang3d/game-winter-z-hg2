@@ -26,15 +26,33 @@ local current_mode=0
 local ratio_filter=0
 local flag_windowed=false
 
-local screenModes={hg.FullscreenMonitor1,hg.FullscreenMonitor2,hg.FullscreenMonitor3}
+local screenModes={hg.WV_FullscreenMonitor1,hg.WV_FullscreenMonitor2,hg.WV_FullscreenMonitor3}
 local smr_screenMode=hg.FullscreenMonitor1
-local smr_resolution=hg.IntVector2(1280,1024)
+local smr_resolution=hg.Vec2(1280,1024)
+
+hg.InputInit()
+hg.WindowSystemInit()
+
+win = hg.NewWindow("Screen Mode Requester", res_w, res_h, 32)--, hg.WV_Fullscreen)
+hg.RenderInit(win)
+hg.RenderReset(res_w, res_h, hg.RF_MSAA8X | hg.RF_FlipAfterRender | hg.RF_FlushAfterRender | hg.RF_MaxAnisotropy | hg.RF_VSync)
+
+hg.AddAssetsFolder("../assets_compiled")
+
+-- initialize ImGui
+imgui_prg = hg.LoadProgramFromAssets('shaders/imgui')
+imgui_img_prg = hg.LoadProgramFromAssets('shaders/imgui_image')
+
+hg.ImGuiInit(10, imgui_prg, imgui_img_prg)
 
 function gui_ScreenModeRequester()
+	dt = hg.TickClock()
 
+	-- ImGui frame
+	hg.ImGuiBeginFrame(res_w, res_h, dt, hg.ReadMouse(), hg.ReadKeyboard())
 	hg.ImGuiSetNextWindowPosCenter(hg.ImGuiCond_Always)
-    hg.ImGuiSetNextWindowSize(hg.Vector2(res_w, res_h), hg.ImGuiCond_Always)
-    if hg.ImGuiBegin("Choose window size", hg.ImGuiWindowFlags_NoTitleBar | hg.ImGuiWindowFlags_MenuBar | hg.ImGuiWindowFlags_NoMove | hg.ImGuiWindowFlags_NoSavedSettings | hg.ImGuiWindowFlags_NoCollapse) then
+    hg.ImGuiSetNextWindowSize(hg.Vec2(res_w, res_h), hg.ImGuiCond_Always)
+    if hg.ImGuiBegin("Choose window size", true, hg.ImGuiWindowFlags_NoTitleBar | hg.ImGuiWindowFlags_MenuBar | hg.ImGuiWindowFlags_NoMove | hg.ImGuiWindowFlags_NoSavedSettings | hg.ImGuiWindowFlags_NoCollapse) then
         if hg.ImGuiBeginCombo("Monitor", monitors_names[current_monitor+1]) then
             for i=0,#monitors_names-1 do
                 f = hg.ImGuiSelectable(monitors_names[i+1], current_monitor == i)
@@ -63,7 +81,7 @@ function gui_ScreenModeRequester()
 		hg.ImGuiSameLine()
 		cancel=hg.ImGuiButton("Quit")
     end
-	hg.ImGuiEnd()
+	hg.ImGuiEndFrame(0)
 
 	if ok then return "ok"
     elseif cancel then return "quit"
@@ -90,15 +108,13 @@ function request_screen_mode(p_ratio_filter)
             end
         end
     end
-	plus=hg.GetPlus()
-	plus:RenderInit(res_w, res_h, 1, hg.Windowed)
 	select=""
 	while select=="" do
 		select=gui_ScreenModeRequester()
-		plus:Flip()
-		plus:EndFrame()
+		hg.SetView2D(0, 0, 0, res_w, res_h, -1, 1, hg.CF_Color | hg.CF_Depth, hg.Color.Black, 1, 0)
+		hg.Frame()
+		hg.UpdateWindow(win)
     end
-    plus:RenderUninit()
     
 	if select=="ok" then
 		if flag_windowed then
@@ -108,6 +124,8 @@ function request_screen_mode(p_ratio_filter)
 		end
 		rect=modes[current_monitor+1][current_mode+1].rect
         smr_resolution.x,smr_resolution.y=rect.ex-rect.sx,rect.ey-rect.sy
+		hg.RenderShutdown()
+		hg.DestroyWindow(win)
     end
 	return select,smr_screenMode,smr_resolution
 end
