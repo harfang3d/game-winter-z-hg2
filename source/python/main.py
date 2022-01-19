@@ -15,6 +15,8 @@
 import harfang as hg
 from math import sin, radians, pi
 from random import uniform, random
+from ScreenModeRequester import *
+
 
 # ===================================================================================================
 
@@ -780,52 +782,52 @@ hg.WindowSystemInit()
 keyboard = hg.Keyboard()
 mouse = hg.Mouse()
 
-res_x, res_y = 1920, 1080
-Main.resolution.x,Main.resolution.y=res_x,res_y
-Main.game_scale=Main.resolution.y / Main.original_resolution.y
+sel,scr_mode,scr_res = request_screen_mode(16/9)
 
-win = hg.NewWindow("WinterZ", res_x, res_y, 32)#, hg.WV_Fullscreen)
-hg.RenderInit(win)
-hg.RenderReset(res_x, res_y, hg.RF_MSAA8X | hg.RF_FlipAfterRender | hg.RF_FlushAfterRender | hg.RF_MaxAnisotropy | hg.RF_VSync)
-
-hg.AddAssetsFolder("../assets_compiled")
-
-render_state_quad = hg.ComputeRenderState(hg.BM_Alpha, hg.DT_Less, hg.FC_Disabled)
-shader_texture = hg.LoadProgramFromAssets("shaders/texture")
-shader_white = hg.LoadProgramFromAssets("shaders/white")
-
-init_game()
-start_ambient_sound()
-
-Main.score = 0
-Main.score_max = 0
-reset_intro_phase()
-game_phase = intro_phase
-
-while not keyboard.Pressed(hg.K_Escape):
-	keyboard.Update()
-	mouse.Update()
-	dt = hg.TickClock()
-	Sprite.z_depth = 100
-
-	hg.SetViewClear(0, hg.CF_Color | hg.CF_Depth, hg.ColorI(64, 64, 64), 1, 0)
-	hg.SetViewRect(0, 0, 0, res_x, res_y)
-
-	Main.resolution.x,Main.resolution.y=res_x,res_y
+if sel == "ok":
+	Main.resolution.x,Main.resolution.y=scr_res.x,scr_res.y
 	Main.game_scale=Main.resolution.y / Main.original_resolution.y
+	Main.screenMode=scr_mode
 
-	Main.delta_t = hg.time_to_sec_f(dt) * Main.game_speed[Main.difficulty_level]
+	win = hg.NewWindow("WinterZ", int(Main.resolution.x), int(Main.resolution.y), 32)#, hg.WV_Fullscreen)
+	hg.RenderInit(win)
+	hg.RenderReset(int(Main.resolution.x), int(Main.resolution.y), hg.RF_MSAA8X | hg.RF_FlipAfterRender | hg.RF_FlushAfterRender | hg.RF_MaxAnisotropy | hg.RF_VSync)
 
-	hg.SetViewOrthographic(0, 0, 0, res_x, res_y, hg.TransformationMat4(hg.Vec3(res_x / 2, res_y / 2, 0), hg.Vec3(0, 0, 0), hg.Vec3(1, 1, 1)), 0, 101, res_y)
+	hg.AddAssetsFolder("../assets_compiled")
 
-	Main.sprites["background"].draw()
+	render_state_quad = hg.ComputeRenderState(hg.BM_Alpha, hg.DT_Less, hg.FC_Disabled)
+	shader_texture = hg.LoadProgramFromAssets("shaders/texture")
+	shader_white = hg.LoadProgramFromAssets("shaders/white")
 
-	game_phase = game_phase()
+	init_game()
+	start_ambient_sound()
 
-	hg.Frame()
-	hg.UpdateWindow(win)
+	Main.score = 0
+	Main.score_max = 0
+	reset_intro_phase()
+	game_phase = intro_phase
 
-hg.AudioShutdown()
-hg.InputShutdown()
-hg.RenderShutdown()
-hg.DestroyWindow(win)
+	while not keyboard.Pressed(hg.K_Escape):
+		keyboard.Update()
+		mouse.Update()
+		dt = hg.TickClock()
+		Sprite.z_depth = 100
+
+		hg.SetViewClear(0, hg.CF_Color | hg.CF_Depth, hg.ColorI(64, 64, 64), 1, 0)
+		hg.SetViewRect(0, 0, 0, int(Main.resolution.x), int(Main.resolution.y))
+
+		Main.delta_t = hg.time_to_sec_f(dt) * Main.game_speed[Main.difficulty_level]
+
+		hg.SetViewOrthographic(0, 0, 0, int(Main.resolution.x), int(Main.resolution.y), hg.TransformationMat4(hg.Vec3(Main.resolution.x / 2, Main.resolution.y / 2, 0), hg.Vec3(0, 0, 0), hg.Vec3(1, 1, 1)), 0, 101, int(Main.resolution.y))
+
+		Main.sprites["background"].draw()
+
+		game_phase = game_phase()
+
+		hg.Frame()
+		hg.UpdateWindow(win)
+
+	hg.AudioShutdown()
+	hg.InputShutdown()
+	hg.RenderShutdown()
+	hg.DestroyWindow(win)
