@@ -28,7 +28,7 @@ Take control of your spaceship and try to go as far as you can.*
 
 ## Credits
 * Original concept, code, art and music : Jerome Sentex
-* Python/Lua reprogramming : Eric Kernin, Clément BEUDOT
+* Python/Lua reprogramming : Eric Kernin, Clément Beudot
 
 ## Screenshots
 [![Video Player (Youtube)](https://github.com/harfang3d/game-winter-z/raw/master/screenshots/thumbnails/video-player.jpg)](https://www.youtube.com/watch?v=cIE6eQkk1P4)
